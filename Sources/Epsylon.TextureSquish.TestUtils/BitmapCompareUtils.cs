@@ -13,7 +13,7 @@ namespace Epsylon.TextureSquish
     {
         public static Vec3 GetVec3(this Vec4 v) { return new Vec3(v.X, v.Y, v.Z); }
 
-        public static Vec4 GetVec4(this Byte[] array, int startIndex)
+        public static Vec4 GetVec4(this byte[] array, int startIndex)
         {
             var x = array[startIndex + 0];
             var y = array[startIndex + 1];

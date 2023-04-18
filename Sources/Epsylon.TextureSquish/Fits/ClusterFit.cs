@@ -49,7 +49,7 @@ namespace Epsylon.TextureSquish
             for (int i = 0; i < count; ++i)
             {
                 dps[i] = Vec3.Dot(values[i], axis);
-                m_order[orderIndex + i] = (Byte)i;
+                m_order[orderIndex + i] = (byte) i;
             }
 
             // stable sort using them
@@ -109,7 +109,7 @@ namespace Epsylon.TextureSquish
             Vec4 bestend = Vec4.Zero;
             float m_besterror = float.MaxValue;
             float besterror = m_besterror;
-            var bestindices = new Byte[16];
+            var bestindices = new byte[16];
             int bestiteration = 0;
             int besti = 0, bestj = 0;
 
@@ -174,7 +174,7 @@ namespace Epsylon.TextureSquish
                 // remap the indices
                 var orderIndex = 16 * bestiteration;
 
-                var unordered = new Byte[16];
+                var unordered = new byte[16];
                 for (int m = 0; m < besti; ++m) unordered[m_order[orderIndex + m]] = 0;
                 for (int m = besti; m < bestj; ++m) unordered[m_order[orderIndex + m]] = 2;
                 for (int m = bestj; m < count; ++m) unordered[m_order[orderIndex + m]] = 1;
@@ -202,7 +202,7 @@ namespace Epsylon.TextureSquish
             Vec4 bestend = Vec4.Zero;
             float m_besterror = float.MaxValue;
             float besterror = m_besterror;
-            var bestindices = new Byte[16];
+            var bestindices = new byte[16];
             int bestiteration = 0;
             int besti = 0, bestj = 0, bestk = 0;
 
@@ -278,7 +278,7 @@ namespace Epsylon.TextureSquish
                 // remap the indices
                 var orderIndex = 16 * bestiteration;
 
-                var unordered = new Byte[16];
+                var unordered = new byte[16];
                 for (int m = 0; m < besti; ++m) unordered[m_order[orderIndex + m]] = 0;
                 for (int m = besti; m < bestj; ++m) unordered[m_order[orderIndex + m]] = 2;
                 for (int m = bestj; m < bestk; ++m) unordered[m_order[orderIndex + m]] = 3;
@@ -324,7 +324,7 @@ namespace Epsylon.TextureSquish
 
         private readonly int m_iterationCount;
         private readonly Vec3 m_principle;
-        private readonly Byte[] m_order = new Byte[16 * MAXITERATIONS];
+        private readonly byte[] m_order = new byte[16 * MAXITERATIONS];
         private readonly Vec4[] m_points_weights = new Vec4[16];
         private readonly Vec4 m_metric;
 

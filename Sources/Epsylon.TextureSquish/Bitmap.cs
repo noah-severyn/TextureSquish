@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Epsylon.TextureSquish
-{
-    public class Bitmap
-    {
-        public Bitmap(int width, int height)
-        {
+namespace Epsylon.TextureSquish {
+    public class Bitmap {
+        public Bitmap(int width, int height) {
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
 
@@ -16,8 +13,7 @@ namespace Epsylon.TextureSquish
             _Data = new byte[_Width * _Height * 4];
         }
 
-        public Bitmap(Byte[] rgba, int width, int height, bool isPreMultiplied = false)
-        {
+        public Bitmap(byte[] rgba, int width, int height, bool isPreMultiplied = false) {
             if (rgba == null) throw new ArgumentNullException(nameof(rgba));
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
@@ -29,15 +25,13 @@ namespace Epsylon.TextureSquish
             _Height = height;
         }
 
-        public Bitmap Clone()
-        {
-            return new Bitmap((Byte[])_Data.Clone(), _Width, _Height)
-            {
+        public Bitmap Clone() {
+            return new Bitmap((byte[]) _Data.Clone(), _Width, _Height) {
                 _IsPreMultiplied = this._IsPreMultiplied
             };
         }
 
-        private readonly Byte[] _Data;        
+        private readonly byte[] _Data;
         private readonly int _Width;
         private readonly int _Height;
 
@@ -52,51 +46,44 @@ namespace Epsylon.TextureSquish
         /// </summary>
         public bool IsPreMultiplied => _IsPreMultiplied;
 
-        public Byte[] Data => _Data;
+        public byte[] Data => _Data;
 
-        public UInt32 this[int x, int y]
-        {
-            get
-            {
+        public uint this[int x, int y] {
+            get {
                 var idx = (y * _Width + x) * 4;
 
-                UInt32 value = 0;
+                uint value = 0;
 
                 value |= _Data[idx + 0];
-                value |= (UInt32)_Data[idx + 1] << 8;
-                value |= (UInt32)_Data[idx + 2] << 16;
-                value |= (UInt32)_Data[idx + 3] << 24;
+                value |= (uint) _Data[idx + 1] << 8;
+                value |= (uint) _Data[idx + 2] << 16;
+                value |= (uint) _Data[idx + 3] << 24;
 
                 return value;
             }
-            set
-            {
+            set {
                 var idx = (y * _Width + x) * 4;
 
-                _Data[idx + 0] = (Byte)(value & 255);
-                _Data[idx + 1] = (Byte)((value>>8) & 255);
-                _Data[idx + 2] = (Byte)((value>>16) & 255);
-                _Data[idx + 3] = (Byte)((value>>24) & 255);
+                _Data[idx + 0] = (byte) (value & 255);
+                _Data[idx + 1] = (byte) ((value >> 8) & 255);
+                _Data[idx + 2] = (byte) ((value >> 16) & 255);
+                _Data[idx + 3] = (byte) ((value >> 24) & 255);
             }
         }
 
-        internal void CopyBlockTo(int x, int y, Byte[] block, out int mask)
-        {
+        internal void CopyBlockTo(int x, int y, byte[] block, out int mask) {
             mask = 0;
 
             int targetPixelIdx = 0;
 
-            for (int py = 0; py < 4; ++py)
-            {
-                for (int px = 0; px < 4; ++px)
-                {
+            for (int py = 0; py < 4; ++py) {
+                for (int px = 0; px < 4; ++px) {
                     // get the source pixel in the image
                     int sx = x + px;
                     int sy = y + py;
 
                     // enable if we're in the image
-                    if (sx < _Width && sy < _Height)
-                    {
+                    if (sx < _Width && sy < _Height) {
                         // copy the rgba value
                         int sourcePixelIdx = 4 * (_Width * sy + sx);
 
@@ -104,9 +91,7 @@ namespace Epsylon.TextureSquish
 
                         // enable this pixel
                         mask |= (1 << (4 * py + px));
-                    }
-                    else
-                    {
+                    } else {
                         // skip this pixel as its outside the image
                         targetPixelIdx += 4;
                     }
@@ -114,14 +99,11 @@ namespace Epsylon.TextureSquish
             }
         }
 
-        internal void SetBlock(int x, int y, Byte[] block)
-        {
+        internal void SetBlock(int x, int y, byte[] block) {
             int sourcePixelIdx = 0;
 
-            for (int py = 0; py < 4; ++py)
-            {
-                for (int px = 0; px < 4; ++px)
-                {
+            for (int py = 0; py < 4; ++py) {
+                for (int px = 0; px < 4; ++px) {
                     // get the source pixel in the image
                     int sx = x + px;
                     int sy = y + py;
@@ -137,13 +119,11 @@ namespace Epsylon.TextureSquish
             }
         }
 
+        
+        public void SwapElements(int r, int g, int b, int a) {
+            var tmp = new byte[4];
 
-        public void SwapElements(int r,int g, int b, int a)
-        {
-            var tmp = new Byte[4];
-
-            for (var i = 0; i < _Data.Length; i += 4)
-            {
+            for (var i = 0; i < _Data.Length; i += 4) {
                 tmp[0] = _Data[i + 0];
                 tmp[1] = _Data[i + 1];
                 tmp[2] = _Data[i + 2];
@@ -156,23 +136,21 @@ namespace Epsylon.TextureSquish
             }
         }
 
-        public void PremultiplyAlpha()
-        {
-            for (var i = 0; i < _Data.Length; i += 4)
-            {
-                var r = (int)_Data[i + 0];
-                var g = (int)_Data[i + 1];
-                var b = (int)_Data[i + 2];
-                var a = (int)_Data[i + 3];
+        public void PremultiplyAlpha() {
+            for (var i = 0; i < _Data.Length; i += 4) {
+                var r = (int) _Data[i + 0];
+                var g = (int) _Data[i + 1];
+                var b = (int) _Data[i + 2];
+                var a = (int) _Data[i + 3];
 
-                _Data[i + 0] = (Byte)( (r * a) / 255);
-                _Data[i + 1] = (Byte)( (g * a) / 255);
-                _Data[i + 2] = (Byte)( (b * a) / 255);
+                _Data[i + 0] = (byte) ((r * a) / 255);
+                _Data[i + 1] = (byte) ((g * a) / 255);
+                _Data[i + 2] = (byte) ((b * a) / 255);
             }
 
             _IsPreMultiplied = true;
         }
-               
+
 
         /// <summary>
         /// Decompresses an image in memory.
@@ -191,9 +169,8 @@ namespace Epsylon.TextureSquish
         /// <param name="height">The height of the image.</param>
         /// <param name="blocks">The compressed DXT blocks.</param>
         /// <param name="flags">Compression flags.</param>
-        public static Bitmap Decompress(int width, int height, Byte[] blocks, CompressionMode mode)
-        {
-            var img = new Bitmap(new Byte[width * height * 4], width, height);
+        public static Bitmap Decompress(int width, int height, byte[] blocks, CompressionMode mode) {
+            var img = new Bitmap(new byte[width * height * 4], width, height);
 
             DecompressImage(img, blocks, mode);
 
@@ -234,19 +211,17 @@ namespace Epsylon.TextureSquish
         /// much memory is required in the compressed image, use
         /// squish::GetStorageRequirements.
         /// </remarks>
-        public Byte[] Compress(CompressionMode mode, CompressionOptions options)
-        {
+        public byte[] Compress(CompressionMode mode, CompressionOptions options) {
             var l = GetStorageRequirements(_Width, _Height, mode);
 
-            var blocks = new Byte[l];
+            var blocks = new byte[l];
 
-            CompressImage(this, blocks, mode,options);
+            CompressImage(this, blocks, mode, options);
 
             return blocks;
-        }        
-        
-        private static void CompressImage(Bitmap srcImage, Byte[] blocks, CompressionMode mode, CompressionOptions options)
-        {
+        }
+
+        private static void CompressImage(Bitmap srcImage, byte[] blocks, CompressionMode mode, CompressionOptions options) {
             // fix any bad flags
             options = options.FixFlags();
 
@@ -256,49 +231,42 @@ namespace Epsylon.TextureSquish
             // if the number of chunks to process is not very large, we better skip parallel processing
             if (block_width * block_height < 16) options &= ~CompressionOptions.UseParallelProcessing;
 
-            if ((options & CompressionOptions.UseParallelProcessing) != 0)
-            {
+            if ((options & CompressionOptions.UseParallelProcessing) != 0) {
                 System.Threading.Tasks.Parallel.For
                     (
                     0,
                     block_height,
-                    (y,state) =>
-                        {
-                            // initialise the block output
-                            var block = new BlockWindow(blocks, mode);
+                    (y, state) => {
+                        // initialise the block output
+                        var block = new BlockWindow(blocks, mode);
 
-                            block.Offset += block.ByteLength * y * block_width;
+                        block.Offset += block.ByteLength * y * block_width;
 
-                            // build the 4x4 block of pixels
-                            var sourceRgba = new Byte[16 * 4];
+                        // build the 4x4 block of pixels
+                        var sourceRgba = new byte[16 * 4];
 
-                            for (int x = 0; x < block_width; x++)
-                            {
-                                srcImage.CopyBlockTo(x*4, y*4, sourceRgba, out int mask);
+                        for (int x = 0; x < block_width; x++) {
+                            srcImage.CopyBlockTo(x * 4, y * 4, sourceRgba, out int mask);
 
-                                // compress it into the output
-                                block.CompressMasked(sourceRgba, mask, options);
+                            // compress it into the output
+                            block.CompressMasked(sourceRgba, mask, options);
 
-                                // advance
-                                block.Offset += block.ByteLength;
-                            }
+                            // advance
+                            block.Offset += block.ByteLength;
                         }
+                    }
                     );
-            }
-            else
-            {
+            } else {
                 // initialise the block output
                 var block = new BlockWindow(blocks, mode);
 
                 // build the 4x4 block of pixels
-                var sourceRgba = new Byte[16 * 4];
+                var sourceRgba = new byte[16 * 4];
 
                 // loop over blocks
-                for (int y = 0; y < block_height; ++y)
-                {
-                    for (int x = 0; x < block_width; ++x)
-                    {
-                        srcImage.CopyBlockTo(x*4, y*4, sourceRgba, out int mask);
+                for (int y = 0; y < block_height; ++y) {
+                    for (int x = 0; x < block_width; ++x) {
+                        srcImage.CopyBlockTo(x * 4, y * 4, sourceRgba, out int mask);
 
                         // compress it into the output
                         block.CompressMasked(sourceRgba, mask, options);
@@ -307,21 +275,18 @@ namespace Epsylon.TextureSquish
                         block.Offset += block.ByteLength;
                     }
                 }
-            }            
-        }               
-        
-        private static void DecompressImage(Bitmap dstImage, Byte[] blocks, CompressionMode mode)
-        {
+            }
+        }
+
+        private static void DecompressImage(Bitmap dstImage, byte[] blocks, CompressionMode mode) {
             // initialise the block input
             var block = new BlockWindow(blocks, mode);
 
-            var targetRgba = new Byte[4 * 16];
+            var targetRgba = new byte[4 * 16];
 
             // loop over blocks
-            for (int y = 0; y < dstImage.Height; y += 4)
-            {
-                for (int x = 0; x < dstImage.Width; x += 4)
-                {
+            for (int y = 0; y < dstImage.Height; y += 4) {
+                for (int x = 0; x < dstImage.Width; x += 4) {
                     // decompress the block
                     block.Decompress(targetRgba);
 
@@ -350,8 +315,7 @@ namespace Epsylon.TextureSquish
         /// function supports arbitrary size images by allowing the outer blocks to
         /// be only partially used.
         /// </remarks>
-        static int GetStorageRequirements(int width, int height, CompressionMode flags)
-        {
+        static int GetStorageRequirements(int width, int height, CompressionMode flags) {
             // compute the storage requirements
             int blockcount = ((width + 3) / 4) * ((height + 3) / 4);
             int blocksize = ((flags & CompressionMode.Dxt1) != 0) ? 8 : 16;

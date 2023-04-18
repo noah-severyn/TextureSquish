@@ -2,21 +2,18 @@ using System;
 
 using Vec3 = System.Numerics.Vector3;
 
-namespace Epsylon.TextureSquish
-{
-    sealed class BlockWindow
-    {
-        public BlockWindow(Byte[] array, CompressionMode flags)
-        {
+namespace Epsylon.TextureSquish {
+    sealed class BlockWindow {
+        public BlockWindow(byte[] array, CompressionMode flags) {
             _Array = array;
 
-            _Mode = flags;            
+            _Mode = flags;
 
             _BytesPerBlock = ((_Mode & CompressionMode.Dxt1) != 0) ? 8 : 16;
             _ColourOffset = (_Mode & (CompressionMode.Dxt3 | CompressionMode.Dxt5)) != 0 ? 8 : 0;
         }
 
-        private readonly Byte[] _Array;
+        private readonly byte[] _Array;
         private readonly int _BytesPerBlock;
         private readonly int _ColourOffset;
         private readonly CompressionMode _Mode;
@@ -27,41 +24,35 @@ namespace Epsylon.TextureSquish
 
         public int ByteLength => _BytesPerBlock;
 
-        public Byte this[int index]
-        {
+        public byte this[int index] {
             get { System.Diagnostics.Debug.Assert(index >= 0 && index < _BytesPerBlock); return _Array[Offset + index]; }
             set { System.Diagnostics.Debug.Assert(index >= 0 && index < _BytesPerBlock); _Array[Offset + index] = value; }
         }
 
         #region compress block writer
 
-        public void WriteColourBlock3(Vec3 start, Vec3 end, Byte[] indices)
-        {
+        public void WriteColourBlock3(Vec3 start, Vec3 end, byte[] indices) {
             // get the packed values
             int a = start.ToPackedInt565();
             int b = end.ToPackedInt565();
 
             // remap the indices
-            var remapped = new Byte[16];
+            var remapped = new byte[16];
 
-            if (a <= b)
-            {
+            if (a <= b) {
                 // use the indices directly
                 for (int i = 0; i < 16; ++i)
                     remapped[i] = indices[i];
-            }
-            else
-            {
+            } else {
                 // swap a and b
                 var c = a;
                 a = b;
                 b = c;
 
-                for (int i = 0; i < 16; ++i)
-                {
-                    if      (indices[i] == 0) remapped[i] = 1;
+                for (int i = 0; i < 16; ++i) {
+                    if (indices[i] == 0) remapped[i] = 1;
                     else if (indices[i] == 1) remapped[i] = 0;
-                    else    remapped[i] = indices[i];
+                    else remapped[i] = indices[i];
                 }
             }
 
@@ -69,31 +60,25 @@ namespace Epsylon.TextureSquish
             WriteColourBlock(a, b, remapped);
         }
 
-        public void WriteColourBlock4(Vec3 start, Vec3 end, Byte[] indices)
-        {
+        public void WriteColourBlock4(Vec3 start, Vec3 end, byte[] indices) {
             // get the packed values
             int a = start.ToPackedInt565();
             int b = end.ToPackedInt565();
 
             // remap the indices
-            var remapped = new Byte[16];
-            if (a < b)
-            {
+            var remapped = new byte[16];
+            if (a < b) {
                 // swap a and b
                 var c = a;
                 a = b;
                 b = c;
                 for (int i = 0; i < 16; ++i)
-                    remapped[i] = (Byte)((indices[i] ^ 0x1) & 0x3);
-            }
-            else if (a == b)
-            {
+                    remapped[i] = (byte) ((indices[i] ^ 0x1) & 0x3);
+            } else if (a == b) {
                 // use index 0
                 for (int i = 0; i < 16; ++i)
                     remapped[i] = 0;
-            }
-            else
-            {
+            } else {
                 // use the indices directly
                 for (int i = 0; i < 16; ++i)
                     remapped[i] = indices[i];
@@ -103,100 +88,84 @@ namespace Epsylon.TextureSquish
             WriteColourBlock(a, b, remapped);
         }
 
-        private void WriteColourBlock(int a, int b, Byte[] indices)
-        {
+        private void WriteColourBlock(int a, int b, byte[] indices) {
             // write the endpoints
-            this[_ColourOffset + 0] = (Byte)(a & 0xff);
-            this[_ColourOffset + 1] = (Byte)(a >> 8);
-            this[_ColourOffset + 2] = (Byte)(b & 0xff);
-            this[_ColourOffset + 3] = (Byte)(b >> 8);
+            this[_ColourOffset + 0] = (byte) (a & 0xff);
+            this[_ColourOffset + 1] = (byte) (a >> 8);
+            this[_ColourOffset + 2] = (byte) (b & 0xff);
+            this[_ColourOffset + 3] = (byte) (b >> 8);
 
             // write the indices
-            for (int i = 0; i < 4; ++i)
-            {
+            for (int i = 0; i < 4; ++i) {
                 var ind = 4 * i;
-                this[_ColourOffset + 4 + i] = (Byte)(indices[ind + 0] | (indices[ind + 1] << 2) | (indices[ind + 2] << 4) | (indices[ind + 3] << 6));
+                this[_ColourOffset + 4 + i] = (byte) (indices[ind + 0] | (indices[ind + 1] << 2) | (indices[ind + 2] << 4) | (indices[ind + 3] << 6));
             }
         }
 
-        private void WriteAlphaBlock5(int alpha0, int alpha1, Byte[] indices)
-        {
+        private void WriteAlphaBlock5(int alpha0, int alpha1, byte[] indices) {
             // check the relative values of the endpoints
-            if (alpha0 > alpha1)
-            {
+            if (alpha0 > alpha1) {
                 // swap the indices
-                var swapped = new Byte[16];
-                for (int i = 0; i < 16; ++i)
-                {
+                var swapped = new byte[16];
+                for (int i = 0; i < 16; ++i) {
                     int index = indices[i];
 
                     if (index == 0) swapped[i] = 1;
                     else if (index == 1) swapped[i] = 0;
-                    else if (index <= 5) swapped[i] = (Byte)(7 - index);
-                    else swapped[i] = (Byte)index;
+                    else if (index <= 5) swapped[i] = (byte) (7 - index);
+                    else swapped[i] = (byte) index;
                 }
 
                 // write the block
                 WriteAlphaBlock(alpha1, alpha0, swapped);
-            }
-            else
-            {
+            } else {
                 // write the block
                 WriteAlphaBlock(alpha0, alpha1, indices);
             }
         }
 
-        private void WriteAlphaBlock7(int alpha0, int alpha1, Byte[] indices)
-        {
+        private void WriteAlphaBlock7(int alpha0, int alpha1, byte[] indices) {
             // check the relative values of the endpoints
-            if (alpha0 < alpha1)
-            {
+            if (alpha0 < alpha1) {
                 // swap the indices
-                var swapped = new Byte[16];
-                for (int i = 0; i < 16; ++i)
-                {
+                var swapped = new byte[16];
+                for (int i = 0; i < 16; ++i) {
                     int index = indices[i];
                     if (index == 0) swapped[i] = 1;
                     else if (index == 1) swapped[i] = 0;
-                    else swapped[i] = (Byte)(9 - index);
+                    else swapped[i] = (byte) (9 - index);
                 }
 
                 // write the block
                 WriteAlphaBlock(alpha1, alpha0, swapped);
-            }
-            else
-            {
+            } else {
                 // write the block
                 WriteAlphaBlock(alpha0, alpha1, indices);
             }
         }
 
-        private void WriteAlphaBlock(int alpha0, int alpha1, Byte[] indices)
-        {
+        private void WriteAlphaBlock(int alpha0, int alpha1, byte[] indices) {
             // write the first two bytes
-            this[0] = (byte)alpha0;
-            this[1] = (byte)alpha1;
+            this[0] = (byte) alpha0;
+            this[1] = (byte) alpha1;
 
             // pack the indices with 3 bits each
             int destIdx = 2;
             int indIdx = 0;
 
-            for (int i = 0; i < 2; ++i)
-            {
+            for (int i = 0; i < 2; ++i) {
                 // pack 8 3-bit values
                 int value = 0;
-                for (int j = 0; j < 8; ++j)
-                {
+                for (int j = 0; j < 8; ++j) {
                     int index = indices[indIdx++];
                     value |= (index << 3 * j);
                 }
 
                 // store in 3 bytes
-                for (int j = 0; j < 3; ++j)
-                {
+                for (int j = 0; j < 3; ++j) {
                     int val = (value >> 8 * j) & 0xff;
 
-                    this[destIdx++] = (Byte)val;
+                    this[destIdx++] = (byte) val;
                 }
             }
         }
@@ -234,8 +203,7 @@ namespace Epsylon.TextureSquish
         /// </remarks>
         /// <param name="rgba">The rgba values of the 16 source pixels.</param>        
         /// <param name="flags">Compression flags.</param>
-        public void Compress(Byte[] rgba, CompressionOptions flags)
-        {
+        public void Compress(byte[] rgba, CompressionOptions flags) {
             // compress with full mask
             CompressMasked(rgba, 0xffff, flags);
         }
@@ -277,39 +245,30 @@ namespace Epsylon.TextureSquish
         /// <param name="rgba">The rgba values of the 16 source pixels.</param>
         /// <param name="mask">The valid pixel mask.</param>
         /// <param name="flags">Compression flags.</param>
-        public void CompressMasked(Byte[] rgba, int mask, CompressionOptions options)
-        {
-            System.Diagnostics.Debug.Assert(rgba != null && rgba.Length == 64, nameof(rgba));            
+        public void CompressMasked(byte[] rgba, int mask, CompressionOptions options) {
+            System.Diagnostics.Debug.Assert(rgba != null && rgba.Length == 64, nameof(rgba));
 
             // create the minimal point set
             var colours = new ColourSet(rgba, mask, _Mode, options);
 
             // check the compression type and compress colour
-            if (colours.Count == 1)
-            {
+            if (colours.Count == 1) {
                 // always do a single colour fit
                 var fit = new SingleColourFit(colours, options);
                 fit.Compress(this);
-            }
-            else if ((options & CompressionOptions.ColourRangeFit) != 0 || colours.Count == 0)
-            {
+            } else if ((options & CompressionOptions.ColourRangeFit) != 0 || colours.Count == 0) {
                 // do a range fit
                 var fit = new RangeFit(colours, options);
                 fit.Compress(this);
-            }
-            else
-            {
-                if ((options & CompressionOptions.ColourClusterFitAlt) != 0)
-                {
+            } else {
+                if ((options & CompressionOptions.ColourClusterFitAlt) != 0) {
                     var fit = new ClusterFitAlt(colours, options);
                     fit.Compress(this);
-                }
-                else
-                {
+                } else {
                     // default to a cluster fit (could be iterative or not)
                     var fit = new ClusterFit(colours, options);
                     fit.Compress(this);
-                }                
+                }
             }
 
             // compress alpha separately if necessary
@@ -317,14 +276,12 @@ namespace Epsylon.TextureSquish
             else if ((_Mode & CompressionMode.Dxt5) != 0) this.CompressAlphaDxt5(rgba, mask);
         }
 
-        public void CompressAlphaDxt3(Byte[] rgba, int mask)
-        {
+        public void CompressAlphaDxt3(byte[] rgba, int mask) {
             // quantise and pack the alpha values pairwise
-            for (int i = 0; i < 8; ++i)
-            {
+            for (int i = 0; i < 8; ++i) {
                 // quantise down to 4 bits
-                float alpha1 = (float)rgba[8 * i + 3] * (15.0f / 255.0f);
-                float alpha2 = (float)rgba[8 * i + 7] * (15.0f / 255.0f);
+                float alpha1 = (float) rgba[8 * i + 3] * (15.0f / 255.0f);
+                float alpha2 = (float) rgba[8 * i + 7] * (15.0f / 255.0f);
                 int quant1 = alpha1.FloatToInt(15);
                 int quant2 = alpha2.FloatToInt(15);
 
@@ -337,19 +294,17 @@ namespace Epsylon.TextureSquish
                     quant2 = 0;
 
                 // pack into the byte
-                this[i] = (Byte)(quant1 | (quant2 << 4));
+                this[i] = (byte) (quant1 | (quant2 << 4));
             }
         }
 
-        public void CompressAlphaDxt5(Byte[] rgba, int mask)
-        {
+        public void CompressAlphaDxt5(byte[] rgba, int mask) {
             // get the range for 5-alpha and 7-alpha interpolation
             int min5 = 255;
             int max5 = 0;
             int min7 = 255;
             int max7 = 0;
-            for (int i = 0; i < 16; ++i)
-            {
+            for (int i = 0; i < 16; ++i) {
                 // check this pixel is valid
                 int bit = 1 << i;
                 if ((mask & bit) == 0) continue;
@@ -372,24 +327,24 @@ namespace Epsylon.TextureSquish
             FixRange(ref min7, ref max7, 7);
 
             // set up the 5-alpha code book
-            var codes5 = new Byte[8];
-            codes5[0] = (Byte)min5;
-            codes5[1] = (Byte)max5;
+            var codes5 = new byte[8];
+            codes5[0] = (byte) min5;
+            codes5[1] = (byte) max5;
             for (int i = 1; i < 5; ++i)
-                codes5[1 + i] = (byte)(((5 - i) * min5 + i * max5) / 5);
+                codes5[1 + i] = (byte) (((5 - i) * min5 + i * max5) / 5);
             codes5[6] = 0;
             codes5[7] = 255;
 
             // set up the 7-alpha code book
-            var codes7 = new Byte[8];
-            codes7[0] = (Byte)min7;
-            codes7[1] = (Byte)max7;
+            var codes7 = new byte[8];
+            codes7[0] = (byte) min7;
+            codes7[1] = (byte) max7;
             for (int i = 1; i < 7; ++i)
-                codes7[1 + i] = (Byte)(((7 - i) * min7 + i * max7) / 7);
+                codes7[1 + i] = (byte) (((7 - i) * min7 + i * max7) / 7);
 
             // fit the data to both code books
-            var indices5 = new Byte[16];
-            var indices7 = new Byte[16];
+            var indices5 = new byte[16];
+            var indices7 = new byte[16];
             int err5 = FitCodes(rgba, mask, codes5, indices5);
             int err7 = FitCodes(rgba, mask, codes7, indices7);
 
@@ -398,22 +353,18 @@ namespace Epsylon.TextureSquish
             else this.WriteAlphaBlock7(min7, max7, indices7);
         }
 
-        private static void FixRange(ref int min, ref int max, int steps)
-        {
+        private static void FixRange(ref int min, ref int max, int steps) {
             if (max - min < steps) max = Math.Min(min + steps, 255);
             if (max - min < steps) min = Math.Max(0, max - steps);
         }
 
-        private static int FitCodes(Byte[] rgba, int mask, byte[] codes, byte[] indices)
-        {
+        private static int FitCodes(byte[] rgba, int mask, byte[] codes, byte[] indices) {
             // fit each alpha value to the codebook
             int err = 0;
-            for (int i = 0; i < 16; ++i)
-            {
+            for (int i = 0; i < 16; ++i) {
                 // check this pixel is valid
                 int bit = 1 << i;
-                if ((mask & bit) == 0)
-                {
+                if ((mask & bit) == 0) {
                     // use the first code
                     indices[i] = 0;
                     continue;
@@ -423,29 +374,27 @@ namespace Epsylon.TextureSquish
                 int value = rgba[4 * i + 3];
                 int least = int.MaxValue;
                 int index = 0;
-                for (int j = 0; j < 8; ++j)
-                {
+                for (int j = 0; j < 8; ++j) {
                     // get the squared error from this code
-                    int dist = (int)value - (int)codes[j];
+                    int dist = (int) value - (int) codes[j];
                     dist *= dist;
 
                     // compare with the best so far
-                    if (dist < least)
-                    {
+                    if (dist < least) {
                         least = dist;
                         index = j;
                     }
                 }
 
                 // save this index and accumulate the error
-                indices[i] = (Byte)index;
+                indices[i] = (byte) index;
                 err += least;
             }
 
             // return the total error
             return err;
         }
-        
+
         #endregion
 
         #region decompress
@@ -464,9 +413,8 @@ namespace Epsylon.TextureSquish
         /// are ignored.
         /// </remarks>
         /// <param name="rgba">Storage for the 16 decompressed pixels.</param>        
-        public void Decompress(Byte[] rgba)
-        {
-            System.Diagnostics.Debug.Assert(rgba != null && rgba.Length == 64, nameof(rgba));            
+        public void Decompress(byte[] rgba) {
+            System.Diagnostics.Debug.Assert(rgba != null && rgba.Length == 64, nameof(rgba));
 
             // decompress colour
             this.DecompressColour(rgba, (_Mode & CompressionMode.Dxt1) != 0);
@@ -476,82 +424,72 @@ namespace Epsylon.TextureSquish
             else if ((_Mode & CompressionMode.Dxt5) != 0) this.DecompressAlphaDxt5(rgba);
         }
 
-        private void DecompressColour(byte[] rgba, bool isDxt1)
-        {
+        private void DecompressColour(byte[] rgba, bool isDxt1) {
             // unpack the endpoints
-            var codes = new Byte[16];
+            var codes = new byte[16];
             int a = Unpack565(_Array, Offset + _ColourOffset + 0, codes, 0);
             int b = Unpack565(_Array, Offset + _ColourOffset + 2, codes, 4);
 
             // generate the midpoints
-            for (int i = 0; i < 3; ++i)
-            {
+            for (int i = 0; i < 3; ++i) {
                 int c = codes[i];
                 int d = codes[4 + i];
 
-                if (isDxt1 && a <= b)
-                {
-                    codes[8 + i] = (Byte)((c + d) / 2);
+                if (isDxt1 && a <= b) {
+                    codes[8 + i] = (byte) ((c + d) / 2);
                     codes[12 + i] = 0;
-                }
-                else
-                {
-                    codes[8 + i] = (Byte)((2 * c + d) / 3);
-                    codes[12 + i] = (Byte)((c + 2 * d) / 3);
+                } else {
+                    codes[8 + i] = (byte) ((2 * c + d) / 3);
+                    codes[12 + i] = (byte) ((c + 2 * d) / 3);
                 }
             }
 
             // fill in alpha for the intermediate values
             codes[8 + 3] = 255;
-            codes[12 + 3] = (Byte)((isDxt1 && a <= b) ? 0 : 255);
+            codes[12 + 3] = (byte) ((isDxt1 && a <= b) ? 0 : 255);
 
             // unpack the indices
-            var indices = new Byte[16];
-            for (int i = 0; i < 4; ++i)
-            {
+            var indices = new byte[16];
+            for (int i = 0; i < 4; ++i) {
                 int ind = 4 * i;
                 var packed = _Array[Offset + _ColourOffset + 4 + i];
 
-                indices[ind + 0] = (Byte)(packed & 0x3);
-                indices[ind + 1] = (Byte)((packed >> 2) & 0x3);
-                indices[ind + 2] = (Byte)((packed >> 4) & 0x3);
-                indices[ind + 3] = (Byte)((packed >> 6) & 0x3);
+                indices[ind + 0] = (byte) (packed & 0x3);
+                indices[ind + 1] = (byte) ((packed >> 2) & 0x3);
+                indices[ind + 2] = (byte) ((packed >> 4) & 0x3);
+                indices[ind + 3] = (byte) ((packed >> 6) & 0x3);
             }
 
             // store out the colours
-            for (int i = 0; i < 16; ++i)
-            {
+            for (int i = 0; i < 16; ++i) {
                 var offset = 4 * indices[i];
                 for (int j = 0; j < 4; ++j)
                     rgba[4 * i + j] = codes[offset + j];
             }
         }
 
-        private static int Unpack565(byte[] packed, int packedOffset, byte[] colour, int colourOffset)
-        {
+        private static int Unpack565(byte[] packed, int packedOffset, byte[] colour, int colourOffset) {
             // build the packed value
-            int value = (int)packed[packedOffset + 0] | ((int)packed[packedOffset + 1] << 8);
+            int value = (int) packed[packedOffset + 0] | ((int) packed[packedOffset + 1] << 8);
 
             // get the components in the stored range
-            int red = (Byte)((value >> 11) & 0x1f);
-            int green = (Byte)((value >> 5) & 0x3f);
-            int blue = (Byte)(value & 0x1f);
+            int red = (byte) ((value >> 11) & 0x1f);
+            int green = (byte) ((value >> 5) & 0x3f);
+            int blue = (byte) (value & 0x1f);
 
             // scale up to 8 bits
-            colour[colourOffset + 0] = (Byte)((red << 3) | (red >> 2));
-            colour[colourOffset + 1] = (Byte)((green << 2) | (green >> 4));
-            colour[colourOffset + 2] = (Byte)((blue << 3) | (blue >> 2));
+            colour[colourOffset + 0] = (byte) ((red << 3) | (red >> 2));
+            colour[colourOffset + 1] = (byte) ((green << 2) | (green >> 4));
+            colour[colourOffset + 2] = (byte) ((blue << 3) | (blue >> 2));
             colour[colourOffset + 3] = 255;
 
             // return the value
             return value;
         }
 
-        private void DecompressAlphaDxt3(Byte[] rgba)
-        {
+        private void DecompressAlphaDxt3(byte[] rgba) {
             // unpack the alpha values pairwise
-            for (int i = 0; i < 8; ++i)
-            {
+            for (int i = 0; i < 8; ++i) {
                 // quantise down to 4 bits
                 int quant = this[i];
 
@@ -560,57 +498,50 @@ namespace Epsylon.TextureSquish
                 int hi = (quant & 0xf0);
 
                 // convert back up to bytes
-                rgba[8 * i + 3] = (Byte)(lo | (lo << 4));
-                rgba[8 * i + 7] = (Byte)(hi | (hi >> 4));
+                rgba[8 * i + 3] = (byte) (lo | (lo << 4));
+                rgba[8 * i + 7] = (byte) (hi | (hi >> 4));
             }
         }
 
-        private void DecompressAlphaDxt5(Byte[] rgba)
-        {
+        private void DecompressAlphaDxt5(byte[] rgba) {
             // get the two alpha values
 
             int alpha0 = this[0];
             int alpha1 = this[1];
 
             // compare the values to build the codebook
-            var codes = new Byte[8];
-            codes[0] = (Byte)alpha0;
-            codes[1] = (Byte)alpha1;
-            if (alpha0 <= alpha1)
-            {
+            var codes = new byte[8];
+            codes[0] = (byte) alpha0;
+            codes[1] = (byte) alpha1;
+            if (alpha0 <= alpha1) {
                 // use 5-alpha codebook
                 for (int i = 1; i < 5; ++i)
-                    codes[1 + i] = (Byte)(((5 - i) * alpha0 + i * alpha1) / 5);
+                    codes[1 + i] = (byte) (((5 - i) * alpha0 + i * alpha1) / 5);
                 codes[6] = 0;
                 codes[7] = 255;
-            }
-            else
-            {
+            } else {
                 // use 7-alpha codebook
                 for (int i = 1; i < 7; ++i)
-                    codes[1 + i] = (Byte)(((7 - i) * alpha0 + i * alpha1) / 7);
+                    codes[1 + i] = (byte) (((7 - i) * alpha0 + i * alpha1) / 7);
             }
 
             // decode the indices
-            var indices = new Byte[16];
+            var indices = new byte[16];
             int bytesIdx = 2;
             var indIdx = 0; // u8* dest = indices;
-            for (int i = 0; i < 2; ++i)
-            {
+            for (int i = 0; i < 2; ++i) {
                 // grab 3 bytes
                 int value = 0;
-                for (int j = 0; j < 3; ++j)
-                {
+                for (int j = 0; j < 3; ++j) {
                     int val = this[bytesIdx++];
                     value |= (val << 8 * j);
                 }
 
                 // unpack 8 3-bit values from it
-                for (int j = 0; j < 8; ++j)
-                {
+                for (int j = 0; j < 8; ++j) {
                     int index = (value >> 3 * j) & 0x7;
 
-                    indices[indIdx++] = (Byte)index;
+                    indices[indIdx++] = (byte) index;
                 }
             }
 
@@ -622,7 +553,7 @@ namespace Epsylon.TextureSquish
         #endregion        
     }
 
-    
+
 }
 
 

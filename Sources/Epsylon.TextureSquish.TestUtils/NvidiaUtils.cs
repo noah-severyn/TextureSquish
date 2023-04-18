@@ -31,7 +31,7 @@ namespace Epsylon.TextureSquish
         }
 
 
-        public static Byte[] CompressWithNvidia(this Bitmap srcImage, CompressionMode mode)
+        public static byte[] CompressWithNvidia(this Bitmap srcImage, CompressionMode mode)
         {
             // System.Diagnostics.Debug.Assert(IntPtr.Size == 8, "nvtt.dll(x64) requires x64 runtime");
 
@@ -58,7 +58,7 @@ namespace Epsylon.TextureSquish
             }                    
         }
 
-        private static unsafe Byte[] Compress(Byte[] data, int width, int height, TeximpNet.Compression.Compressor ddsCompressor)
+        private static unsafe byte[] Compress(byte[] data, int width, int height, TeximpNet.Compression.Compressor ddsCompressor)
         {
             var dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
 
@@ -74,7 +74,7 @@ namespace Epsylon.TextureSquish
                 {
                     var outData = compressedImages.MipChains[0][0];
 
-                    var outSpan = new Span<Byte>((Byte*)outData.Data, outData.SizeInBytes);
+                    var outSpan = new Span<byte>((byte*)outData.Data, outData.SizeInBytes);
 
                     return outSpan.ToArray();
                 }

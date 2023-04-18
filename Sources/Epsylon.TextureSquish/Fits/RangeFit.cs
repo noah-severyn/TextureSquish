@@ -80,7 +80,7 @@ namespace Epsylon.TextureSquish
             codes[2] = 0.5f * m_start + 0.5f * m_end;
 
             // match each point to the closest code
-            var closest = new Byte[16];
+            var closest = new byte[16];
             float error = 0.0f;
             for (int i = 0; i < count; ++i)
             {
@@ -98,7 +98,7 @@ namespace Epsylon.TextureSquish
                 }
 
                 // save the index
-                closest[i] = (Byte)idx;
+                closest[i] = (byte) idx;
 
                 // accumulate the error
                 error += dist;
@@ -108,7 +108,7 @@ namespace Epsylon.TextureSquish
             if (error < m_besterror)
             {
                 // remap the indices
-                var indices = new Byte[16];
+                var indices = new byte[16];
                 m_colours.RemapIndices(closest, indices);
 
                 // save the block
@@ -133,7 +133,7 @@ namespace Epsylon.TextureSquish
             codes[3] = (1.0f / 3.0f) * m_start + (2.0f / 3.0f) * m_end;
 
             // match each point to the closest code
-            var closest = new Byte[16];
+            var closest = new byte[16];
             float error = 0.0f;
             for (int i = 0; i < count; ++i)
             {
@@ -151,7 +151,7 @@ namespace Epsylon.TextureSquish
                 }
 
                 // save the index
-                closest[i] = (Byte)idx;
+                closest[i] = (byte) idx;
 
                 // accumulate the error
                 error += dist;
@@ -161,7 +161,7 @@ namespace Epsylon.TextureSquish
             if (error < m_besterror)
             {
                 // remap the indices
-                var indices = new Byte[16];
+                var indices = new byte[16];
                 m_colours.RemapIndices(closest, indices);
 
                 // save the block

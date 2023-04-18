@@ -37,7 +37,7 @@ namespace Epsylon.TextureSquish
         private readonly Vec4 m_metric;
         private readonly Vec4 m_metricSqr;
 
-        private readonly Byte[] m_order = new Byte[16];        
+        private readonly byte[] m_order = new byte[16];        
         private readonly Vec4[] m_weighted = new Vec4[16];
         private readonly Vec4[] m_unweighted = new Vec4[16];
         private readonly float[] m_weights = new float[16];        
@@ -57,7 +57,7 @@ namespace Epsylon.TextureSquish
             for (int i = 0; i < count; ++i)
             {
                 dps[i] = Vec3.Dot(values[i], axis);
-                m_order[i] = (Byte)i;
+                m_order[i] = (byte) i;
             }            
 
             // stable sort using them
@@ -102,8 +102,8 @@ namespace Epsylon.TextureSquish
             var bestbesterror = float.MaxValue;
 
             // check all possible clusters for this total order
-            var indices = new Byte[16];
-            var bestindices = new Byte[16];
+            var indices = new byte[16];
+            var bestindices = new byte[16];
 
             // first cluster [0,i) is at the start
             for (int m = 0; m < count; ++m)
@@ -150,7 +150,7 @@ namespace Epsylon.TextureSquish
             if (besterror < bestbesterror)
             {
                 // remap the indices
-                var unordered = new Byte[16];
+                var unordered = new byte[16];
                 for (int i = 0; i < count; ++i) unordered[m_order[i]] = bestindices[i];
                 m_colours.RemapIndices(unordered, bestindices);
 
@@ -179,8 +179,8 @@ namespace Epsylon.TextureSquish
             const float onethird = 1.0f / 3.0f;
 
             // check all possible clusters for this total order
-            var indices = new Byte[16];
-            var bestindices = new Byte[16];
+            var indices = new byte[16];
+            var bestindices = new byte[16];
 
             // first cluster [0,i) is at the start
             for (int m = 0; m < count; ++m)
@@ -242,7 +242,7 @@ namespace Epsylon.TextureSquish
             if (besterror < bestbesterror)
             {
                 // remap the indices
-                var unordered = new Byte[16];
+                var unordered = new byte[16];
                 for (int i = 0; i < count; ++i) unordered[m_order[i]] = bestindices[i];
                 m_colours.RemapIndices(unordered, bestindices);
 

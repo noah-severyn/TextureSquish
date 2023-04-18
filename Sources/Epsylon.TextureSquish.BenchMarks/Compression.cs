@@ -12,7 +12,7 @@ namespace Epsylon.TextureSquish.BenchMarks
     [SimpleJob(launchCount: 1, warmupCount: 5, targetCount: 5)]
     public class Compression
     {
-        private readonly Dictionary<String, Bitmap> _Bitmaps = new Dictionary<String, Bitmap>();                
+        private readonly Dictionary<string, Bitmap> _Bitmaps = new Dictionary<string, Bitmap>();                
 
         [GlobalSetup]
         public void ReadImages()
@@ -25,7 +25,7 @@ namespace Epsylon.TextureSquish.BenchMarks
             }            
         }
 
-        public IEnumerable<String> ImageNames
+        public IEnumerable<string> ImageNames
         {
             get
             {
@@ -40,7 +40,7 @@ namespace Epsylon.TextureSquish.BenchMarks
         }
 
         [ParamsSource(nameof(ImageNames))]
-        public String ImageName;
+        public string ImageName;
 
         [Benchmark(Baseline = true, Description = "NVidia Texture Tool")]
         public void NVidiaCompression()

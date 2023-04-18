@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Epsylon.TextureSquish
-{
-    
-    public enum CompressionMode
-    {
+namespace Epsylon.TextureSquish {
+
+    public enum CompressionMode {
         /// <summary>
         /// Use DXT1 compression.
         /// </summary>
@@ -21,12 +19,11 @@ namespace Epsylon.TextureSquish
         /// <summary>
         /// Use DXT5 compression.
         /// </summary>
-        Dxt5 = 4,        
+        Dxt5 = 4,
     }
 
     [Flags]
-    public enum CompressionOptions
-    {
+    public enum CompressionOptions {
         None = 0,
 
         /// <summary>
@@ -78,10 +75,8 @@ namespace Epsylon.TextureSquish
         UseParallelProcessing = 2048,
     }
 
-    static class ConstantsExtensions
-    {
-        public static CompressionOptions FixFlags(this CompressionOptions flags)
-        {
+    static class ConstantsExtensions {
+        public static CompressionOptions FixFlags(this CompressionOptions flags) {
             // grab the flag bits            
             var fit = flags & (CompressionOptions.ColourIterativeClusterFit | CompressionOptions.ColourClusterFit | CompressionOptions.ColourRangeFit | CompressionOptions.ColourClusterFitAlt);
             var metric = flags & (CompressionOptions.ColourMetricPerceptual | CompressionOptions.ColourMetricUniform);
@@ -93,6 +88,6 @@ namespace Epsylon.TextureSquish
 
             // done
             return fit | metric | extra;
-        }        
+        }
     }
 }

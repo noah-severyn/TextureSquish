@@ -29,9 +29,9 @@ namespace Epsylon.TextureSquish
         {
             // grab the single colour
             var values = m_colours.Points;
-            m_colour[0] = (Byte)((255.0f * values[0].X).FloatToInt(255));
-            m_colour[1] = (Byte)((255.0f * values[0].Y).FloatToInt(255));
-            m_colour[2] = (Byte)((255.0f * values[0].Z).FloatToInt(255));
+            m_colour[0] = (byte) ((255.0f * values[0].X).FloatToInt(255));
+            m_colour[1] = (byte) ((255.0f * values[0].Y).FloatToInt(255));
+            m_colour[2] = (byte) ((255.0f * values[0].Z).FloatToInt(255));
 
             // initialise the best error
             m_besterror = int.MaxValue;
@@ -46,8 +46,8 @@ namespace Epsylon.TextureSquish
             if (m_error < m_besterror)
             {
                 // remap the indices
-                var indices = new Byte[16];
-                m_colours.RemapIndices(new Byte[] { m_index }, indices);
+                var indices = new byte[16];
+                m_colours.RemapIndices(new byte[] { m_index }, indices);
 
                 // save the block
                 block.WriteColourBlock3(m_start, m_end, indices);
@@ -66,8 +66,8 @@ namespace Epsylon.TextureSquish
             if (m_error < m_besterror)
             {
                 // remap the indices
-                var indices = new Byte[16];
-                m_colours.RemapIndices(new Byte[] { m_index }, indices);
+                var indices = new byte[16];
+                m_colours.RemapIndices(new byte[] { m_index }, indices);
 
                 // save the block
                 block.WriteColourBlock4(m_start, m_end, indices);
@@ -113,16 +113,16 @@ namespace Epsylon.TextureSquish
                         (float)sources[1].end / 63.0f,
                         (float)sources[2].end / 31.0f
                     );
-                    m_index = (Byte)(2 * index);
+                    m_index = (byte) (2 * index);
                     m_error = error;
                 }
             }
         }
 
-        Byte[] m_colour = new Byte[3];
+        byte[] m_colour = new byte[3];
         Vec3 m_start;
         Vec3 m_end;
-        Byte m_index;
+        byte m_index;
         int m_error;
         int m_besterror;
     }
